@@ -1,10 +1,10 @@
 # Systems Portfolio
 
-**Eight small, focused open-source apps carved out of one personal super-app, each built to show a different
+**Nine small, focused open-source apps carved out of one personal super-app, each built to show a different
 distributed-systems or clean-architecture idea, in .NET, NestJS and Java.**
 
 "Lingo" is a personal super-app I use every day: money, jobs, lists, prices, trips, car and home upkeep,
-medication, the gym. Over time it became one big server doing everything. These repositories take one corner of it
+medication, the gym, learning. Over time it became one big server doing everything. These repositories take one corner of it
 each and rebuild it from scratch as a standalone product with a fresh history and invented data only. The point is
 not the features; it is to have small, honest codebases where a pattern such as a transactional outbox, event
 sourcing, offline sync or a Durable Functions orchestration is the core of the design, is tested against real
@@ -29,33 +29,32 @@ This repository holds no application code. It is the map: what each app is, whic
 | **Upkeep** | Car and home maintenance with reminders that actually fire ("10 000 km or 6 months, whichever first") | NestJS, GraphQL (Apollo, graphql-ws), `@nestjs/cqrs`, BullMQ + Redis, Postgres, React + urql | CQRS + saga, delayed jobs with retry and dead-letter queue, GraphQL subscriptions, query cost limits | [ahmedoshelmy/upkeep](https://github.com/ahmedoshelmy/upkeep) |
 | **Dose Keeper** | Medication schedules with escalating reminders, refill forecasts and adherence (demo only, not medical advice) | .NET 10 Azure Functions (isolated), Durable Functions, Table + Queue Storage, Azurite, React | Eternal orchestration, human-interaction pattern, fan-out / fan-in, poison queue, self-healing timer | [ahmedoshelmy/dose-keeper](https://github.com/ahmedoshelmy/dose-keeper) |
 | **Gym Scout** | Find gyms near you or on your commute by real price per visit, then log workouts and records | Java 25, Spring Boot 4.2, Spring Modulith, PostGIS, Resilience4j, Caffeine, React + Leaflet | Geospatial KNN + corridor search, polite outbound calls (rate limit, bulkhead, retry, breaker, fallback), ports and adapters | [ahmedoshelmy/gym-scout](https://github.com/ahmedoshelmy/gym-scout) |
-| **Study Forge** | Learning roadmaps and spaced repetition, with progress analytics streamed over Kafka | Java 25, Spring Boot 4.2, Spring Kafka (Redpanda), Postgres, SSE, React | *In progress*: two services, database per service, outbox to Kafka, dead-letter topic | not published yet |
+| **Study Forge** | Learning roadmaps and spaced repetition, with progress analytics streamed over Kafka | Java 25, Spring Boot 4.2, Spring Kafka (Redpanda), Spring Modulith, Postgres + Flyway, SSE, React | 2 services with database per service, outbox to Kafka, idempotent consumer, retry topics + DLT, JSON Schema contracts | [ahmedoshelmy/study-forge](https://github.com/ahmedoshelmy/study-forge) |
 
 ## Capability matrix
 
 ✓ means the repository really does it, in code that runs in its tests or its compose stack. A short word instead
-of ✓ means a partial or different take on the pattern; an empty cell means it is not there. Study Forge is left
-out until it is published.
+of ✓ means a partial or different take on the pattern; an empty cell means it is not there.
 
-| Pattern | Qirsh | Job Radar | Listmate | Price Watch | Trip Split | Upkeep | Dose Keeper | Gym Scout |
-|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| Clean Architecture / DDD | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| CQRS (separate write and read paths) | | | | | ✓ | ✓ | | |
-| Event sourcing | | | | | ✓ | | | |
-| Transactional outbox / inbox | ✓ both | ✓ both | inbox-style log | ✓ outbox | ✓ outbox (Modulith) | | | ✓ outbox (Modulith) |
-| Pub/sub over a broker | ✓ RabbitMQ / Service Bus | ✓ RabbitMQ / Service Bus | Redis backplane | ✓ RabbitMQ | | Redis pub/sub | Storage queues | |
-| Competing consumers | | | | ✓ | | ✓ | | |
-| gRPC | ✓ | | | ✓ | | | | |
-| Real-time push | SignalR | SignalR | SignalR | socket.io | STOMP | GraphQL subscriptions | | |
-| Offline sync | | | ✓ | | | | | |
-| Serverless / Durable Functions | | | | | | | ✓ | |
-| Geospatial | | | | | | | | ✓ PostGIS |
-| Resilience (retry / breaker / rate limit) | gRPC deadline + fallback | ✓ | bounded retry on conflict | deadlines, concurrency cap, DLQ | | retry + backoff, DLQ | poison queue, repair timer | ✓ |
-| Observability (OpenTelemetry) | ✓ | ✓ | ✓ | ✓ | | | | Micrometer metrics |
-| Testcontainers | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ Azurite | ✓ PostGIS |
-| Architecture tests | ✓ | ✓ | ✓ | lint rule | ✓ ArchUnit + Modulith | lint rule | ✓ | ✓ ArchUnit + Modulith |
-| IaC (Bicep) | ✓ | ✓ | ✓ | | | | ✓ | |
-| CI (GitHub Actions) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Pattern | Qirsh | Job Radar | Listmate | Price Watch | Trip Split | Upkeep | Dose Keeper | Gym Scout | Study Forge |
+|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| Clean Architecture / DDD | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| CQRS (separate write and read paths) | | | | | ✓ | ✓ | | | ✓ read side is its own service |
+| Event sourcing | | | | | ✓ | | | | |
+| Transactional outbox / inbox | ✓ both | ✓ both | inbox-style log | ✓ outbox | ✓ outbox (Modulith) | | | ✓ outbox (Modulith) | ✓ outbox (Modulith) + dedupe table |
+| Pub/sub over a broker | ✓ RabbitMQ / Service Bus | ✓ RabbitMQ / Service Bus | Redis backplane | ✓ RabbitMQ | | Redis pub/sub | Storage queues | | ✓ Kafka (Redpanda) |
+| Competing consumers | | | | ✓ | | ✓ | | | consumer group |
+| gRPC | ✓ | | | ✓ | | | | | |
+| Real-time push | SignalR | SignalR | SignalR | socket.io | STOMP | GraphQL subscriptions | | | SSE |
+| Offline sync | | | ✓ | | | | | | |
+| Serverless / Durable Functions | | | | | | | ✓ | | |
+| Geospatial | | | | | | | | ✓ PostGIS | |
+| Resilience (retry / breaker / rate limit) | gRPC deadline + fallback | ✓ | bounded retry on conflict | deadlines, concurrency cap, DLQ | | retry + backoff, DLQ | poison queue, repair timer | ✓ | retry topics + DLT |
+| Observability (OpenTelemetry) | ✓ | ✓ | ✓ | ✓ | | | | Micrometer metrics | ✓ |
+| Testcontainers | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ Azurite | ✓ PostGIS | ✓ Postgres + Redpanda |
+| Architecture tests | ✓ | ✓ | ✓ | lint rule | ✓ ArchUnit + Modulith | lint rule | ✓ | ✓ ArchUnit + Modulith | ✓ ArchUnit |
+| IaC (Bicep) | ✓ | ✓ | ✓ | | | | ✓ | | |
+| CI (GitHub Actions) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 Notes on the less obvious cells:
 
@@ -66,6 +65,8 @@ Notes on the less obvious cells:
 - **Upkeep, Redis pub/sub**: BullMQ on Redis carries the jobs; Redis pub/sub relays notifications to every API
   replica for the GraphQL subscription.
 - **Dose Keeper, storage queues**: Azure Storage queues with a poison queue, not a pub/sub broker.
+- **Study Forge, consumer group**: the insights listeners share one Kafka consumer group and events are keyed by
+  learner, so replicas would split partitions; the stack runs one replica and no test scales it out.
 
 ## Landscape
 
@@ -91,13 +92,10 @@ flowchart TB
   subgraph JAVA["Java 25 / Spring Boot 4.2"]
     TS["Trip Split<br/>event sourcing · Modulith · STOMP"]
     GS["Gym Scout<br/>PostGIS · Resilience4j · Modulith"]
-    SF["Study Forge (in progress)<br/>2 services · Kafka"]
+    SF["Study Forge<br/>2 services · Kafka · SSE"]
   end
 
   PW -. "gRPC sidecar wraps" .-> EPS["egypt-price-scraper<br/>(separate open-source library)"]
-
-  classDef wip stroke-dasharray: 4 4
-  class SF wip
 ```
 
 Every app runs on its own; they do not call each other. What they share is a set of conventions: Clean
@@ -131,13 +129,13 @@ Maven wrapper).
 These are portfolio projects, built quickly and tested well, but not hardened products. Taken from each README's
 own known gaps:
 
-- **No authentication** in Qirsh, Job Radar, Price Watch EG, Trip Split, Upkeep, Dose Keeper and Gym Scout: they
+- **No authentication** in Qirsh, Job Radar, Price Watch EG, Trip Split, Upkeep, Dose Keeper, Gym Scout and Study Forge: they
   are single-user tools meant for your own machine or network. Only Listmate has accounts (ASP.NET Core Identity
   bearer tokens).
 - **Bicep never deployed.** Qirsh, Job Radar, Listmate and Dose Keeper ship Bicep that CI only compiles. Missing
   pieces are written down: Qirsh's internal gRPC port needs an extra port mapping, images need a registry, and
-  Listmate's web upstream must point at the API's internal ingress. Price Watch EG, Trip Split, Upkeep and Gym
-  Scout are compose-only.
+  Listmate's web upstream must point at the API's internal ingress. Price Watch EG, Trip Split, Upkeep, Gym
+  Scout and Study Forge are compose-only.
 - **Single-instance limits.** Trip Split uses an in-memory STOMP broker (one API instance); Listmate's presence is
   per replica, and a removed member is evicted live only on the replica that handled the removal.
 - **Unbounded or in-process recovery.** Price Watch EG has no outbox retention job and no per-shop circuit
@@ -145,6 +143,8 @@ own known gaps:
   job catches it.
 - **Trusting clocks and inputs.** Trip Split's `asOf` trusts the server clock and exchange rates are typed by hand;
   Qirsh treats two byte-identical SMS (same text and balance) as one.
+- **Study Forge's retries can reorder.** Non-blocking retry topics let a retried event be overtaken by a later
+  one (accepted and written down in its ADR 0002); FSRS scheduling exists only as an interface.
 - **Dose Keeper is a demo**, not a medical device; notifications go to a stub channel.
 - **Live data sources** (job boards, Egyptian shops, OpenStreetMap Overpass, the public OSRM server) are free
   community or public endpoints; the apps are polite to them, but none of this is meant for heavy traffic.
