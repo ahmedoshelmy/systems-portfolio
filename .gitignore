@@ -1,0 +1,16 @@
+# Editors and OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Local notes and secrets never belong here
+.env
+.env.*
+!.env.example
+*.local.md
+
+# Rendered previews
+node_modules/
+dist/
