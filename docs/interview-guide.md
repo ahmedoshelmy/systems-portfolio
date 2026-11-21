@@ -357,8 +357,9 @@ by event contracts with JSON Schemas.
 - *How is "today" defined for a streak?* In the learner's zone with an injected clock, so a review at 00:30 local
   time counts for the right day.
 
-**What I'd do next.** An FSRS scheduling strategy (the interface exists), a Redis cache for "due today", a
-screenshot, and a test that runs two insights replicas to show partition rebalancing.
+**What I'd do next.** FSRS already runs as a switchable second `SchedulingStrategy` (`STUDYFORGE_SCHEDULER=fsrs`,
+ADR 0004); next would be fitting its weights to a learner's own review log, a Redis cache for "due today", and a
+test that runs two insights replicas to show partition rebalancing.
 
 ---
 

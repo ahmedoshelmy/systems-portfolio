@@ -100,8 +100,18 @@ flowchart TB
 
 Every app runs on its own; they do not call each other. What they share is a set of conventions: Clean
 Architecture layers with an enforced dependency rule, ADRs in `docs/adr/`, a `compose.yaml` with health checks
-and memory limits, a `scripts/smoke.sh` end-to-end check, invented demo data behind a flag, and a CI workflow that
-builds, tests (including Testcontainers) and builds the images.
+and memory limits, a `scripts/smoke.sh` end-to-end check (Job Radar instead proves its flow in one Testcontainers
+test), invented demo data behind a flag, and a CI workflow that builds, tests (including Testcontainers) and builds
+the images.
+
+## Platform and operations
+
+Two repositories hold no app code; they run the apps above the way a team would operate them:
+
+| Repo | What it shows | CI |
+|---|---|---|
+| [ahmedoshelmy/platform-k8s](https://github.com/ahmedoshelmy/platform-k8s) | Helm charts for Listmate and Trip Split (probes, HPA, PDBs, NetworkPolicies, non-root read-only pods, scale guard rails), a kind dev cluster with a CI install + smoke test, an AKS overlay and Argo CD app-of-apps | [![CI](https://github.com/ahmedoshelmy/platform-k8s/actions/workflows/ci.yml/badge.svg)](https://github.com/ahmedoshelmy/platform-k8s/actions/workflows/ci.yml) |
+| [ahmedoshelmy/observability-lab](https://github.com/ahmedoshelmy/observability-lab) | Qirsh wired to an OpenTelemetry Collector and Prometheus, Tempo, Loki and Grafana (dashboards as code), SLO burn-rate rules with promtool tests, and k6 load tests with measured results, including an outbox stall found with trace evidence | [![CI](https://github.com/ahmedoshelmy/observability-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/ahmedoshelmy/observability-lab/actions/workflows/ci.yml) |
 
 ## How to run any app
 
@@ -144,7 +154,8 @@ own known gaps:
 - **Trusting clocks and inputs.** Trip Split's `asOf` trusts the server clock and exchange rates are typed by hand;
   Qirsh treats two byte-identical SMS (same text and balance) as one.
 - **Study Forge's retries can reorder.** Non-blocking retry topics let a retried event be overtaken by a later
-  one (accepted and written down in its ADR 0002); FSRS scheduling exists only as an interface.
+  one (accepted and written down in its ADR 0002). FSRS is a switchable second strategy next to the default SM-2;
+  there is no tool yet to fit its weights to a learner's own history.
 - **Dose Keeper is a demo**, not a medical device; notifications go to a stub channel.
 - **Live data sources** (job boards, Egyptian shops, OpenStreetMap Overpass, the public OSRM server) are free
   community or public endpoints; the apps are polite to them, but none of this is meant for heavy traffic.
