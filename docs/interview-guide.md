@@ -37,6 +37,15 @@ call with a deadline. A Testcontainers test drives an SMS all the way to a Signa
    are not counted twice.
 5. **A pure, table-tested parser.** The bilingual SMS grammar is a dependency-free domain function tested with
    dozens of invented messages, so it can run behind REST, gRPC or on a phone unchanged.
+6. **Measured, diagnosed, fixed, re-measured.** A k6 ramp in
+   [observability-lab](https://github.com/ahmedoshelmy/observability-lab) (2→40 req/s from a cold start) left up
+   to 1,990 messages stuck in the outbox, delivery p95 over 10 s, and messages dead-lettered. Logs showed
+   Postgres `40001` serialization failures. Two causes together: MassTransit's EF outbox defaults to
+   `RepeatableRead`, and every SMS bumped a few hot merchant-rule counters with read-modify-write. Fix: outbox at
+   `ReadCommitted`, the counter as one atomic `UPDATE … + 1` (lowering isolation alone would have turned errors
+   into lost updates), and a short jittered retry for lost races (40001, 40P01, 23505) nested inside the normal
+   retry. A Testcontainers test firing 200 SMS at once failed before (196/200, 4 dead-lettered) and passes after.
+   Re-measured: backlog peak 3–8, zero `40001`, zero dead letters, delivery p95 71–243 ms. ADR 5.
 
 **Likely questions.**
 
